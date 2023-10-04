@@ -189,13 +189,13 @@ int install_bootstrap(const char *tar, char *pm) {
                 return ret;
             }
 
-            t = fopen("/var/mobile/Library/palera1n/temp/bootstrap.tar", "rb");
+            t = fopen("/tmp/palera1n/temp/bootstrap.tar", "rb");
             if (t == NULL) {
                 fprintf(stderr, "%s %s\n", "Unable to open:", tar_path);
                 return -1;
             }
 
-            untar(t, "/var/mobile/Library/palera1n/temp/bootstrap.tar");
+            untar(t, "/tmp/palera1n/temp/bootstrap.tar");
         } else {
             untar(t, tar_path);
         }
