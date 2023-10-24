@@ -9,7 +9,7 @@
 #include <jbloader.h>
 
 #define ZSTD_BIN "/cores/binpack/usr/bin/zstd"
-#define TAR_TMP "/var/mobile/Library/palera1n/temp/bootstrap.tar"
+#define TAR_TMP "/tmp/palera1n/temp/bootstrap.tar"
 
 int pre_checks() {
     if (access(ZSTD_BIN, F_OK) != 0) {
