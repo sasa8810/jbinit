@@ -285,16 +285,16 @@ static int setup_fakefs(struct paleinfo* pinfo_p) {
     
     runCommand((char*[]){ "/usr/libexec/seputil", "--gigalocker-shutdown", NULL });
 
-    if (access("/sbin/unmount", F_OK) == 0)
-        runCommand((char*[]){ "/sbin/umount", "-a" });
+    if (access("/sbin/umount", F_OK) == 0)
+        runCommand((char*[]){ "/sbin/umount", "-a", NULL });
 
     unmount("/private/var", MNT_FORCE);
     unmount("/cores/fs/real", MNT_FORCE);
     unmount("/cores/fs/fake", MNT_FORCE);
     unmount("/private/xarts", MNT_FORCE);
 
-    if (access("/sbin/unmount", F_OK) == 0)
-        runCommand((char*[]){ "/sbin/umount", "-a" });
+    if (access("/sbin/umount", F_OK) == 0)
+        runCommand((char*[]){ "/sbin/umount", "-a", NULL });
 
     sync();
     return 0;
