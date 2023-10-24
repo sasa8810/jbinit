@@ -44,16 +44,14 @@ __attribute__((naked)) static inline uint64_t msyscall(uint64_t syscall, ...)
 
 int jbloader_early(int argc, char **argv)
 {
-  int fd_console = open("/dev/console", O_RDWR);
+  /*int fd_console = open("/dev/console", O_RDWR);
   if (fd_console == -1) {
     char buf[0x100];
     snprintf(buf, 0x100, "jbloader cannot open /dev/console: %d (%s)", errno, strerror(errno));
     reboot_np(RB_PANIC, buf); // crash
     return -1;
   }
-  dup2(fd_console, STDIN_FILENO);
-  dup2(fd_console, STDOUT_FILENO);
-  dup2(fd_console, STDERR_FILENO);
+  dup2(fd_console, STDIN_FILENO);*/
   int ret = 0;
   if (checkrain_options_enabled(pinfo.flags, palerain_option_jbinit_log_to_file))
   {

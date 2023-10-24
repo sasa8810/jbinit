@@ -330,7 +330,12 @@ static void customConstructor(int argc, const char **argv){
   /* make binpack available */
   pid_t pid;
   int ret;
-  CHECK_ERROR(posix_spawn(&pid, "/cores/jbloader", NULL, NULL, (char*[]){"/cores/jbloader","-f",NULL},environ), "could not spawn jbloader");
+  posix_spawn_file_actions_t actions;
+  posix_spawn_file_actions_init(&actions);
+  posix_spawn_file_actions_addopen(&actions, STDOUT_FILENO,"/dev/console", O_WRONLY, 0);
+  posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, "/dev/console", O_WRONLY, 0);
+  posix_spawn_file_actions_addopen(&actions, STDIN_FILENO, "/dev/console", O_RDONLY, 0);
+  CHECK_ERROR(posix_spawn(&pid, "/cores/jbloader", &actions, NULL, (char*[]){"/cores/jbloader","-f",NULL},environ), "could not spawn jbloader");
   int status;
   waitpid(pid, &status, 0);
   if (!WIFEXITED(status) || WEXITSTATUS(status) != 0) {
