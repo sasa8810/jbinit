@@ -15,24 +15,14 @@
 
 #define SOURCES_PATH_ROOTFUL "/etc/apt/sources.list.d/palera1n.sources"
 #define SOURCES_PATH_ROOTLESS "/var/jb/etc/apt/sources.list.d/palera1n.sources"
-#define ZEBRA_PATH "/var/mobile/Library/Application Support/xyz.willy.Zebra/sources.list"
+#define ZEBRA_PATH "/var/mobile/Library/Application Support/xyz.willy.Zebra"
 
 #define ELLEKIT_SILEO "Types: deb\nURIs: https://ellekit.space/\nSuites: ./\nComponents:\n\n"
-#define ELLEKIT_ZEBRA "deb https://ellekit.space/ ./\n"
 
 #define PALECURSUS_SILEO_1800 "Types: deb\nURIs: https://strap.palera.in/\nSuites: iphoneos-arm64/1800\nComponents: main\n\n"
 #define PALECURSUS_SILEO_1900 "Types: deb\nURIs: https://strap.palera.in/\nSuites: iphoneos-arm64/1900\nComponents: main\n\n"
-#define PALECURSUS_ZEBRA_1800 "deb https://strap.palera.in/ iphoneos-arm64/1800 main\n"
-#define PALECURSUS_ZEBRA_1900 "deb https://strap.palera.in/ iphoneos-arm64/1900 main\n"
 
-#define PALERA1N_ZEBRA "deb https://repo.palera.in/ ./\n"
 #define PALERA1N_SILEO "Types: deb\nURIs: https://repo.palera.in/\nSuites: ./\nComponents:\n\n"
-
-#define ZEBRA_ZEBRA "deb https://getzbra.com/repo ./\n"
-
-#define PROCURSUS_ZEBRA_1800 "deb https://apt.procurs.us/ 1800 main\n"
-#define PROCURSUS_ZEBRA_1900 "deb https://apt.procurs.us/ 1900 main\n"
-#define PROCURSUS_ZEBRA_2000 "deb https://apt.procurs.us/ 1900 main\n" // set to 1900 until updated
 
 #define PROCURSUS_PATH "/etc/apt/sources.list.d/procursus.sources"
 #define PROCURSUS_PREFS_PATH "/etc/apt/preferences.d/procursus"
@@ -141,13 +131,14 @@ int add_sources_apt() {
         if (check_rootful()) fputs(PALECURSUS_SILEO_1900, apt_sources);
         else fputs(ELLEKIT_SILEO, apt_sources);
         break;
-    case 2000:
-        if (check_rootful()) fprintf(stderr, "%s %d\n", "Unsupported config:", CF);
-        else fputs(ELLEKIT_SILEO, apt_sources);
-        break;
     default:
-        fprintf(stderr, "%s %d\n", "Unknown CoreFoundation Version:", CF);
-        return -1;
+        if (CF >= 2000) {
+            if (check_rootful()) fprintf(stderr, "%s %d\n", "Unsupported config:", CF);
+            else fputs(ELLEKIT_SILEO, apt_sources);
+        } else {
+            fprintf(stderr, "%s %d\n", "Unknown CoreFoundation Version:", CF);
+            return -1;
+        }
         break;
     }
 
@@ -160,47 +151,8 @@ int add_sources_apt() {
     return 0;
 }
 
-int add_sources_zebra() {
-    FILE *zebra_sources = fopen(ZEBRA_PATH, "rb");
-    if (zebra_sources != NULL) {
-        fprintf(stdout, "%s\n", "Removing zebra.list.");
-        fclose(zebra_sources);
-        remove(ZEBRA_PATH);
-    } else {
-        fclose(zebra_sources);
-    }
-
-    int CF = (int)((floor)(kCFCoreFoundationVersionNumber / 100) * 100);
-    zebra_sources = fopen(ZEBRA_PATH, "w+");
-    fputs(ZEBRA_ZEBRA, zebra_sources);
-    fputs(PALERA1N_ZEBRA, zebra_sources);
-
-
-        switch(CF) {
-        case 1800:
-            if (check_rootful()) fputs(PALECURSUS_ZEBRA_1800, zebra_sources);
-            else {fputs(ELLEKIT_ZEBRA, zebra_sources); fputs(PROCURSUS_ZEBRA_1800, zebra_sources);}
-            break;
-        case 1900:
-            if (check_rootful()) fputs(PALECURSUS_ZEBRA_1900, zebra_sources);
-            else {fputs(ELLEKIT_ZEBRA, zebra_sources); fputs(PROCURSUS_ZEBRA_1900, zebra_sources);}
-            break;
-        case 2000:
-            if (check_rootful()) fprintf(stderr, "%s %d\n", "Unsupported config:", CF);
-            else {fputs(ELLEKIT_ZEBRA, zebra_sources); fputs(PROCURSUS_ZEBRA_2000, zebra_sources);}
-            break;
-        default:
-            fprintf(stderr, "%s %d\n", "Unknown CoreFoundation Version:", CF);
-            return -1;
-            break;
-    }
-
-    int ret = fclose(zebra_sources);
-    if (ret != 0) {
-        fprintf(stderr, "%s %d\n", "Failed to close Zebra sources file:", ret);
-        return ret;
-    }
-
+int remove_sources_zebra() {
+    remove(ZEBRA_PATH);
     return 0;
 }
 
@@ -215,12 +167,10 @@ int add_sources() {
         return ret;
     }
     
-    if (installed == 1 || installed == 3) {
-        ret = add_sources_zebra();
-        if (ret != 0) {
-            fprintf(stderr, "%s %d\n", "Failed to add default sources to Zebra:", ret);
-            return ret;
-        }
+    ret = remove_sources_zebra();
+    if (ret != 0) {
+        fprintf(stderr, "%s %d\n", "Failed to remove zebra sources:", ret);
+        return ret;
     }
 
     ret = upgrade_packages();
