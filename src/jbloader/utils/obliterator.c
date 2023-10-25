@@ -9,6 +9,7 @@ int jailbreak_obliterator()
       "/cores/binpack/bin/rm",
       "-rf",
       "/var/lib",
+      "/var/mobile/Library/Application Support/xyz.willy.Zebra",
       "/var/cache",
     NULL});
   }
@@ -60,6 +61,7 @@ int jailbreak_obliterator()
         "/cores/binpack/bin/rm",
         "-rf",
         "/var/jb",
+        "/var/mobile/Library/Application Support/xyz.willy.Zebra",
         "/var/LIB",
         "/var/Liy",
         "/var/ulb",
